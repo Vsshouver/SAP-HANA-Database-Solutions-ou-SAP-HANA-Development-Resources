@@ -1,0 +1,13 @@
+SELECT
+    T0.CardCode AS "Cód. Cliente",
+    T0.CardName AS "Cliente",
+    SUM(CASE WHEN DATEDIFF(DAY, T1.DocDueDate, CURRENT_DATE) <= 0 THEN T1.DocTotal ELSE 0 END) AS "Dentro do Prazo",
+    SUM(CASE WHEN DATEDIFF(DAY, T1.DocDueDate, CURRENT_DATE) BETWEEN 1 AND 30 THEN T1.DocTotal ELSE 0 END) AS "1-30 Dias",
+    SUM(CASE WHEN DATEDIFF(DAY, T1.DocDueDate, CURRENT_DATE) BETWEEN 31 AND 60 THEN T1.DocTotal ELSE 0 END) AS "31-60 Dias",
+    SUM(CASE WHEN DATEDIFF(DAY, T1.DocDueDate, CURRENT_DATE) > 60 THEN T1.DocTotal ELSE 0 END) AS "> 60 Dias",
+    SUM(T1.DocTotal) AS "Total A Receber"
+FROM OCRD T0
+INNER JOIN OINV T1 ON T0.CardCode = T1.CardCode
+WHERE T1.DocStatus = 'O'
+GROUP BY T0.CardCode, T0.CardName
+ORDER BY "> 60 Dias" DESC
